@@ -446,7 +446,8 @@ class FeatureClient(BaseFeatureClient,
         connection_obj = self.get_connection_module_object(connection)
         interface = self.__get_interface(device)
         device_id = self.__get_device_id(device)
-        status = self.__check_radio_status(device).lower()
+        #status = self.__check_radio_status(device).lower()
+        status = None #This line has to be modified
         if status != "enabled":
             raise Exception(
                 "Radio interface is not enabled. " \
@@ -476,7 +477,8 @@ class FeatureClient(BaseFeatureClient,
         connection_obj = self.get_connection_module_object(connection)
         interface = self.__get_interface(device)
         device_id = self.__get_device_id(device)
-        status = self.__check_radio_status(device).lower()
+        #status = self.__check_radio_status(device).lower()
+        status = None #This line has to be modified
         if status != "enabled":
             raise Exception("Radio interface is not enabled. " \
             "Please use the keyword 'Enable Radio Interface <device>'.")

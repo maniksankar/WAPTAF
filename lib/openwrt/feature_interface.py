@@ -842,28 +842,28 @@ class FeatureInterface(BaseFeatureInterface,
             raise RuntimeError(f"Command execution failed : {command}")
         return str(output)
 
-    def set_vap_name(self,
-                        device: str,
-                        index: str,
-                        name: str):
+    # def set_vap_name(self,
+    #                     device: str,
+    #                     index: str,
+    #                     name: str):
 
-        zi_logger.log(f"lib.openwrt.feature_radio.set_vap_name({device})")
-        connection = self.db_obj.read_from_database(device, 'connection')
-        connection_obj = self.get_connection_module_object(connection)
-        connection_obj.switch_connection(device)
-        try:
-            index = self.db_obj.read_from_database(device, index)
-            interface = self.db_obj.read_from_database(device, "wifi_iface").format(index)
-        except Exception as err: # pylint: disable=broad-except
-            print(f"ERROR: {err}")
-            raise RuntimeError(f"Could not find out the Radio of the device name: {device}")
+    #     zi_logger.log(f"lib.openwrt.feature_radio.set_vap_name({device})")
+    #     connection = self.db_obj.read_from_database(device, 'connection')
+    #     connection_obj = self.get_connection_module_object(connection)
+    #     connection_obj.switch_connection(device)
+    #     try:
+    #         index = self.db_obj.read_from_database(device, index)
+    #         interface = self.db_obj.read_from_database(device, "wifi_iface").format(index)
+    #     except Exception as err: # pylint: disable=broad-except
+    #         print(f"ERROR: {err}")
+    #         raise RuntimeError(f"Could not find out the Radio of the device name: {device}")
 
-        command = f"uci set wireless.{interface}.name={name}"
-        print(f"COMMAND : {command}")
-        _, error = connection_obj.execute_command(command,
-                                              return_stderr=True)
-        if error != '':
-            raise RuntimeError(f"Command execution failed : {command}")
+    #     command = f"uci set wireless.{interface}.name={name}"
+    #     print(f"COMMAND : {command}")
+    #     _, error = connection_obj.execute_command(command,
+    #                                           return_stderr=True)
+    #     if error != '':
+    #         raise RuntimeError(f"Command execution failed : {command}")
 
 
     def set_interface_state(self,

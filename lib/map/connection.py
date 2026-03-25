@@ -61,6 +61,14 @@ class Connection(DatabaseModule,
                 raise SkipExecution(
                     f"Could not established remote connection with device: {device}")
 
+    @keyword("Is Device Alive")
+    def is_device_alive(self,
+                        device: str):
+        zi_logger.log(f"lib.map.connection.get_file({device})")
+        connection = self.db_obj.read_device_connection(device)
+        connection_obj = self.get_connection_module_object(connection)
+        return connection_obj.is_device_alive(device)
+
     @keyword("Execute Command")
     def execute_command(self,
                         device,

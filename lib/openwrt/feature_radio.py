@@ -104,7 +104,8 @@ class FeatureRadio(BaseFeatureRadio,
     def set_bandwidth(self,
                       device: str,
                       index: str,
-                      bandwidth: str):
+                      bandwidth: str,
+                      no_scan: bool = False):
         """
         To set Bandwidth for the specific radio index
         """
@@ -121,6 +122,15 @@ class FeatureRadio(BaseFeatureRadio,
         command = f"uci set wireless.{radio}.htmode={bandwidth}"
         _, error = connection_obj.execute_command(command,
                                                   return_stderr=True)
+        if error != '':
+            raise RuntimeError(f"Command execution failed : {command}")
+
+        if no_scan:
+            command = f"uci set wireless.{radio}.noscan=1"
+        else:
+            command = f"uci set wireless.{radio}.noscan=0"
+        _, error = connection_obj.execute_command(command,
+                                                return_stderr=True)
         if error != '':
             raise RuntimeError(f"Command execution failed : {command}")
 
@@ -382,7 +392,7 @@ class FeatureRadio(BaseFeatureRadio,
         _, error = connection_obj.execute_command(command,
                                                   return_stderr=True)
         if error != '':
-            raise RuntimeError(f"Command execution failed : {command}")
+            raise RuntimeError(f"Command execution failed : {command}")   
 
     def set_prop_coext(self,
                         device: str,
@@ -615,6 +625,7 @@ class FeatureRadio(BaseFeatureRadio,
             print(f"ERROR: {err}")
             raise RuntimeError(f"Could not find out the Radio of the device : {device}")
         command = f"iwlist {ifname} channel | grep '^ *Channel' | awk '{{print $2}}' | sort -n"
+        
         output, error = connection_obj.execute_command(command,
                                                        return_stderr=True)
         if error != '':
@@ -636,7 +647,8 @@ class FeatureRadio(BaseFeatureRadio,
         except Exception as err: # pylint: disable=broad-except
             print(f"ERROR: {err}")
             raise RuntimeError(f"Could not find out the Radio of the device : {device}")
-        command = f"iwlist {ifname} channel | grep '^ *Channel' | awk '{{print $2}}' | sort -n | tail -1"
+        #command = f"iwlist {ifname} channel | grep '^ *Channel' | awk '{{print $2}}' | sort -n | tail -1"
+        command= f"iwinfo {ifname} freqlist | grep Channel | wc -l"
         output, error = connection_obj.execute_command(command,
                                                        return_stderr=True)
         if error != '':
@@ -658,7 +670,8 @@ class FeatureRadio(BaseFeatureRadio,
         except Exception as err: # pylint: disable=broad-except
             print(f"ERROR: {err}")
             raise RuntimeError(f"Could not find out the Radio of the device : {device}")
-        command = f"iwlist {ifname} channel | grep 'channels in total' | awk '{{print $2}}'"
+        #command = f"iwlist {ifname} channel | grep 'channels in total' | awk '{{print $2}}'"
+        command= f"iwinfo {ifname} freqlist | grep Channel | wc -l"
         output, error = connection_obj.execute_command(command,
                                                        return_stderr=True)
         if error != '':

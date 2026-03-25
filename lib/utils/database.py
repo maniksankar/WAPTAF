@@ -135,7 +135,20 @@ the values {args}") from err
         Returns name of the list of devices present in config files
         """
         zi_logger.log("lib.utils.database.get_testbed_devices()")
-        return list(Database.__database.keys())
+        #return list(Database.__database.keys())
+        devices = list(Database.__database.keys())
+        device_present = [device for device in devices if Database.__database[device]['device_present']]
+        return device_present    
+
+    def get_live_devices(self):
+        """
+        Returns name of the list of devices present in config files
+        """
+        zi_logger.log("lib.utils.database.get_testbed_devices()")
+        #return list(Database.__database.keys())
+        devices = self.get_testbed_devices()
+        live_devices = [device for device in devices if Database.__database[device]['connection_status']]
+        return live_devices
 
     def get_testbed_platforms(self):
         """

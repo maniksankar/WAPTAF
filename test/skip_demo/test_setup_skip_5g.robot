@@ -5,8 +5,8 @@ Suite Teardown   This Suite Teardown
  
 *** Variables ***
 ${dut}    ap
-${wlan_client_1}    ap_wlan_client_1
-${wlan_client_2}  ap_wlan_client_2
+${wlan_client_1}    dev_ap_wc_1
+${wlan_client_2}  dev_ap_wc_2
 ${5g_radio_index}    5g_radio_index
 ${5g_iface_index}    5g_iface_index
 ${5g_ssid_index}    5g_ssid_index
@@ -23,6 +23,7 @@ ${count}      4
 ${htmode_3}    40
 ${htmode_4}    20
 
+
 *** Keywords ***
 
 This Suite Setup
@@ -36,7 +37,7 @@ This Suite Teardown
     Close Connection    ${wlan_client_1}
     Close Connection    ${wlan_client_2}
 
-Check If Device Is Alive
+CCheck If Device Is Alive
     [Arguments]    ${device}
     ${result}    Is Device Alive    ${device}
     Skip If    ${result} == ${False}    SKIP: The device ${device} is not accessible
@@ -53,31 +54,17 @@ Check If Radio Is Enabled In Wlan Client
     Make Client To Default State    ${client}
 
 Initial Check Ap And Its 5G Radio
-    Check If Device Is Alive    ${dut}
-    Check If Radio Is Enabled In The Ap    ${dut}    ${5g_radio_index}
+    Test Precondition
 
 Initial Check Ap And Its 5G Radio And Wlan Client 1
-    Initial Check Ap And Its 5G Radio
-    Check If Device Is Alive    ${wlan_client_1}
-    Check If Radio Is Enabled In Wlan Client    ${wlan_client_1}
     Test Precondition
     Make Client To Default State    ${wlan_client_1}
-    
 
 Initial Check AP And Its 5G Radio And Wlan Client 2
-    Initial Check Ap And Its 5G Radio
-    Check If Device Is Alive    ${wlan_client_2}
-    Check If Radio Is Enabled In Wlan Client    ${wlan_client_2}
     Test Precondition
     Make Client To Default State    ${wlan_client_2}
- 
 
 Initial Check AP And Its 5G Radio And Wlan Client 1 And Client 2
-    Initial Check Ap And Its 5G Radio
-    Check If Device Is Alive    ${wlan_client_1}
-    Check If Radio Is Enabled In Wlan Client    ${wlan_client_1}
-    Check If Device Is Alive    ${wlan_client_2}
-    Check If Radio Is Enabled In Wlan Client    ${wlan_client_2}
     Test Precondition
     Make Client To Default State    ${wlan_client_1}
     Make Client To Default State    ${wlan_client_2}
@@ -159,11 +146,17 @@ Get Encryption Security_none
 
 Get Channel 40
     ${channel_1}    Read From Database    ${dut}    5g_channel_40 
-    RETURN    ${channel_1}  
+    RETURN    ${channel_1}
+
+Get Channel 36
+    ${channel_1}    Read From Database    ${dut}    5g_channel_36 
+    RETURN    ${channel_1} 
 
 Get Channel 44
     ${channel}    Read From Database    ${dut}    5g_channel_44
     RETURN    ${channel}
+
+
 
 
 
@@ -173,7 +166,7 @@ Test Precondition
     ${encryption_wpa2_personal}    Get Encryption WPA2-Personal
     ${bandwidth_80}    Get Bandwidth 80MHz
     ${standard_axa}    Get Operating Standard axa
-    ${channel_1}    Get Channel 40
+    ${channel_1}    Get Channel 36
 
 
     Set Radio State    ${dut}    ${5g_radio_index}  ${1}
@@ -230,8 +223,8 @@ Client Should Be Connected With Ssid
 
 Check And Connect A Client To A Secured Ssid
     [Arguments]    ${client}    ${ssid}    ${password}
-    Wait Until Keyword Succeeds    60    3    Check Ap Ssid Visibility  ${client}  ${ssid}
-    Wait Until Keyword Succeeds    60    3    Connect Client To Ssid  ${client}  ${ssid}   ${password}
+    Wait Until Keyword Succeeds    60    3    Check Ap Ssid Visibility   ${client}   ${ssid}
+    Wait Until Keyword Succeeds    60    3    Connect Client To Ssid   ${client}   ${ssid}   ${password}
     Wait Until Keyword Succeeds    60    3    Client Should Be Connected With Ssid    ${client}    ${ssid}
     
 Configure And Check The Bandwidth
@@ -254,21 +247,21 @@ Configure And Check The Encryption
 
 *** Test Cases ***
 TS02001: Verify WIFI Client1 are getting connected in all the WLAN Interfaces
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
 
 TC02002: Verify WIFI Client2 is getting connected in all the WLAN Interfaces
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
 
 TS02003: Verify WIFI Client1 are getting IP address from all the WLAN Interfaces.
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -278,7 +271,7 @@ TS02003: Verify WIFI Client1 are getting IP address from all the WLAN Interfaces
     Log To Console    ${WLAN_CLIENT_1} IPV4 address : ${ret}
 
 TC02004: Verify WIFI Client2 is getting IP address from all the WLAN Interfaces.
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -288,7 +281,7 @@ TC02004: Verify WIFI Client2 is getting IP address from all the WLAN Interfaces.
     Log To Console    ${WLAN_CLIENT_2} IPV4 address : ${ret}
 
 TS02005: Verify Internet connectivity - WIFI Client1 - ping 8.8.8.8
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -297,7 +290,7 @@ TS02005: Verify Internet connectivity - WIFI Client1 - ping 8.8.8.8
     Should Be True    ${loss} < ${5}
 
 TS02006: Verify Internet connectivity - WIFI Client2 - ping 8.8.8.8
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -306,7 +299,7 @@ TS02006: Verify Internet connectivity - WIFI Client2 - ping 8.8.8.8
     Should Be True    ${loss} < ${5}
 
 TS02007: Verify Internet connectivity - WIFI Client1 - ping google.co.in
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -315,7 +308,7 @@ TS02007: Verify Internet connectivity - WIFI Client1 - ping google.co.in
     Should Be True    ${loss} < ${5}
 
 TS02008: Verify Internet connectivity - WIFI Client2 - ping google.co.in
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -324,7 +317,7 @@ TS02008: Verify Internet connectivity - WIFI Client2 - ping google.co.in
     Should Be True    ${loss} < ${5}
 
 TS02009: Verify WLAN connectivity - Ping from DUT to WIFI Client1
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -335,64 +328,64 @@ TS02009: Verify WLAN connectivity - Ping from DUT to WIFI Client1
     Should Be True    ${loss} < ${5}
 
 TS02010: Verify WLAN connectivity - Ping from DUT to WIFI Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
     ${ip}    Get Client Ipv4   ${wlan_client_2}
     Log To Console    ${wlan_client_2} : ${ip}
-    ${loss}    Ping Ipv4    ap     ${ip}    ${count}
+    ${loss}    Ping Ipv4    ${dut}    ${ip}    ${count}
     Should Be True    ${loss} < ${5}
 
 TS02011: Verify WLAN connectivity - Ping from WIFI Client1 to DUT.
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DUT1
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
     ${ip}  Get Dut Bridge Ipv4    ap
     Log To Console  ap : ${ip}
-    ${loss}  Ping Ipv4  ap_wlan_client_1  ${ip}  ${count}
+    ${loss}  Ping Ipv4  ${wlan_client_1}    ${ip}    ${count}
     Should Be True  ${loss} < ${5}
 
 TS02012: Verify WLAN connectivity - Ping from WIFI Client2 to DUT.
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G  DUT1
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
     ${ip}  Get Dut Bridge Ipv4  ap
     Log To Console  ap : ${ip}
-    ${loss}  Ping Ipv4  ap_wlan_client_2    ${ip}    ${count}
+    ${loss}  Ping Ipv4  dev_ap_wc_2    ${ip}    ${count}
     Should Be True    ${loss} < ${5}
 
 TS02013: Verify WLAN connectivity - Ping between WIFI Client1 To Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1    DEV_AP_WC_2
     Initial Check AP And Its 5G Radio And Wlan Client 1 And Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${ip}  Get Client Ipv4    ap_wlan_client_1
-    Log To Console  ap_wlan_client_1 : ${ip}
-    ${loss}  Ping Ipv4  ap_wlan_client_2  ${ip}  ${count}
+    ${ip}  Get Client Ipv4     dev_ap_wc_1
+    Log To Console  dev_ap_wc_2  : ${ip}
+    ${loss}  Ping Ipv4  dev_ap_wc_2  ${ip}  ${count}
     Should Be True  ${loss} < ${5}
 
 TS02014: Verify WLAN connectivity - Ping between WIFI Client2 To Client1
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1     DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 1 And Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${ip}  Get Client Ipv4    ap_wlan_client_2
-    Log To Console  ap_wlan_client_2 : ${ip}
-    ${loss}  Ping Ipv4    ap_wlan_client_1    ${ip}    ${count}
+    ${ip}  Get Client Ipv4    dev_ap_wc_2
+    Log To Console  dev_ap_wc_2 : ${ip}
+    ${loss}  Ping Ipv4    dev_ap_wc_1    ${ip}    ${count}
     Should Be True    ${loss} < ${5}
 
 TS02015: Changing Channel to 5GHz radio and verify with a WiFi Client1
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -404,11 +397,11 @@ TS02015: Changing Channel to 5GHz radio and verify with a WiFi Client1
     Should Be Equal    ${ret}    ${channel}
     Wait Until Keyword Succeeds    30    3    Check Channel    ${dut}    ${5g_radio_index}    ${channel}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
-    ${ret}  Get Client Channel  ap_wlan_client_1
+    ${ret}  Get Client Channel   dev_ap_wc_1
     Should Be Equal  ${ret}  ${channel}
 
 TS02016: Changing Channel to 5GHz radio and verify with a WiFi Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -420,11 +413,11 @@ TS02016: Changing Channel to 5GHz radio and verify with a WiFi Client2
     Should Be Equal    ${ret}    ${channel_2}
     Wait Until Keyword Succeeds    30    3    Check Channel    ${dut}    ${5g_radio_index}    ${channel_2}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${ret}  Get Client Channel  ap_wlan_client_2
+    ${ret}  Get Client Channel   dev_ap_wc_2
     Should Be Equal  ${ret}  ${channel_2}
 
 TS02017: Changing bandwidth to 5GHz radio and verify with a WiFi Client1
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1 
@@ -440,11 +433,11 @@ TS02017: Changing bandwidth to 5GHz radio and verify with a WiFi Client1
     Should Be Equal    ${ret}    ${bandwidth_2}
     Wait Until Keyword Succeeds    30    3    Check Bandwidth    ${dut}    ${5g_radio_index}    ${htmode_2}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
-    ${ret}    Get Client Bandwidth    ap_wlan_client_1
+    ${ret}    Get Client Bandwidth     dev_ap_wc_1
     Should Not Be Empty    ${ret}
 
 TS02018: Changing bandwidth to 5GHz radio and verify with a WiFi Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    A
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1 
@@ -460,59 +453,59 @@ TS02018: Changing bandwidth to 5GHz radio and verify with a WiFi Client2
     Should Be Equal    ${ret}    ${bandwidth_2}
     Wait Until Keyword Succeeds    20    3    Check Bandwidth    ${dut}    ${5g_radio_index}    ${htmode_2}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${ret}    Get Client Bandwidth    ap_wlan_client_2
+    ${ret}    Get Client Bandwidth     dev_ap_wc_2
     Should Not Be Empty  ${ret} 
 
 TC02019: Verify WLAN connectivity - Ping from DUT to WIFI Client1
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    A
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1  
     ${bandwidth_2}    Get Bandwidth 160MHz
     Configure And Check The Bandwidth    ${bandwidth_2}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}    
-    ${ip}    Get Client Ipv4   ap_wlan_client_1
-    Log To Console  ap_wlan_client_1 : ${ip}
+    ${ip}    Get Client Ipv4    dev_ap_wc_1
+    Log To Console   dev_ap_wc_1 : ${ip}
     ${loss}  Ping Ipv4  ap  ${ip}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02020: Verify WLAN connectivity - Ping from DUT to WIFI Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1  
     ${bandwidth_2}    Get Bandwidth 160MHz
     Configure And Check The Bandwidth    ${bandwidth_2}
     Wait Until Keyword Succeeds    30    3    Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${ip}    Get Client Ipv4   ap_wlan_client_2
-    Log To Console  ap_wlan_client_2 : ${ip}
+    ${ip}    Get Client Ipv4    dev_ap_wc_2
+    Log To Console   dev_ap_wc_2 : ${ip}
     ${loss}  Ping Ipv4  ap  ${ip}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02021: Verify Internet connectivity - WIFI Client1 - ping google.co.in
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    A
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1  
     ${bandwidth_2}    Get Bandwidth 160MHz
     Configure And Check The Bandwidth    ${bandwidth_2}   
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
-    ${loss}  Ping Ipv4  ap_wlan_client_1  ${url}  ${count}
+    ${loss}  Ping Ipv4   dev_ap_wc_1  ${url}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02022: Verify Internet connectivity - WIFI Client2 - ping google.co.in
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    A
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2 
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1  
     ${bandwidth_2}    Get Bandwidth 160MHz
     Configure And Check The Bandwidth    ${bandwidth_2}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${loss}  Ping Ipv4  ap_wlan_client_2  ${url}  ${count}
+    ${loss}  Ping Ipv4   dev_ap_wc_2  ${url}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02023: Changing SSID to 5GHz radio and verify with a WiFi Client1
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_2}    Get 5G Ssid 2
     ${password_2}    Get Password 2
@@ -528,7 +521,7 @@ TC02023: Changing SSID to 5GHz radio and verify with a WiFi Client1
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_2}    ${password_2}
 
 TC02024: Changing SSID to 5GHz radio and verify with a WiFi Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_2}    Get 5G Ssid 2
     ${password_2}    Get Password 2
@@ -544,7 +537,7 @@ TC02024: Changing SSID to 5GHz radio and verify with a WiFi Client2
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_2}    ${password_2}
 
 TC02025: Verify STA1 association to 5GHz channels in open authentication
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1  
@@ -557,7 +550,7 @@ TC02025: Verify STA1 association to 5GHz channels in open authentication
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
 
 TC02026: Verify STA2 association to 5GHz channels in open authentication
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1  
@@ -570,7 +563,7 @@ TC02026: Verify STA2 association to 5GHz channels in open authentication
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
 #########################
 TC02027: Change Encryption (WPA2-Personal) method of 5GHz Interface and verify with WiFi Client1
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -583,7 +576,7 @@ TC02027: Change Encryption (WPA2-Personal) method of 5GHz Interface and verify w
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
 
 TC02028: Change Encryption (WPA2-Personal) method of 5GHz Interface and verify with WiFi Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -596,41 +589,41 @@ TC02028: Change Encryption (WPA2-Personal) method of 5GHz Interface and verify w
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
 
 TC02029: Verify WLAN connectivity - Ping from DUT to WIFI Client1
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
-    ${ip}    Get Client Ipv4   ap_wlan_client_1
-    Log To Console  ap_wlan_client_1 : ${ip}
+    ${ip}    Get Client Ipv4    dev_ap_wc_1
+    Log To Console   dev_ap_wc_1 : ${ip}
     ${loss}  Ping Ipv4  ap  ${ip}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02030: Verify WLAN connectivity - Ping from DUT to WIFI Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${ip}    Get Client Ipv4   ap_wlan_client_2
-    Log To Console  ap_wlan_client_2 : ${ip}
+    ${ip}    Get Client Ipv4    dev_ap_wc_2
+    Log To Console   dev_ap_wc_2 : ${ip}
     ${loss}  Ping Ipv4  ap  ${ip}  ${count}
     Should Be True  ${loss} < ${5}
 
 
 TC02031: Verify Internet connectivity - WIFI Client1 - ping google.co.in 
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
-    ${loss}  Ping Ipv4  ap_wlan_client_1  ${url}  ${count}
+    ${loss}  Ping Ipv4   dev_ap_wc_1  ${url}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02032: Verify Internet connectivity - WIFI Client2 - ping google.co.in 
@@ -641,7 +634,7 @@ TC02032: Verify Internet connectivity - WIFI Client2 - ping google.co.in
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${loss}  Ping Ipv4  ap_wlan_client_2    ${url}    ${count}
+    ${loss}  Ping Ipv4   dev_ap_wc_2    ${url}    ${count}
     Should Be True    ${loss} < ${5}
 
 TC02033: Open_Source_Regression_11AXAHE40_OPEN_5G
@@ -719,7 +712,7 @@ TC02036: Open_Source_Regression_11NAHT40_WPA2_PSK_5G
     Wait Until Keyword Succeeds   30    3    Check Ssid    ${dut}    ${5g_ssid_index}    ${ssid_1}
 
 TC02037: Change Encryption (WPA2+WPA3) method of 5GHz Interface and verify with WiFi Client1 
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -733,7 +726,7 @@ TC02037: Change Encryption (WPA2+WPA3) method of 5GHz Interface and verify with 
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
 
 TC02038: Change Encryption (WPA2+WPA3) method of 5GHz Interface and verify with WiFi Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -747,55 +740,55 @@ TC02038: Change Encryption (WPA2+WPA3) method of 5GHz Interface and verify with 
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
 
 TC02039: Verify WLAN connectivity - Ping from DUT to WIFI Client1
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
-    ${ip}    Get Client Ipv4   ap_wlan_client_1
-    Log To Console  ap_wlan_client_1 : ${ip}
+    ${ip}    Get Client Ipv4    dev_ap_wc_1
+    Log To Console   dev_ap_wc_1 : ${ip}
     ${loss}  Ping Ipv4  ap  ${ip}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02040: Verify WLAN connectivity - Ping from DUT to WIFI Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${ip}    Get Client Ipv4   ap_wlan_client_1
-    Log To Console  ap_wlan_client_1 : ${ip}
+    ${ip}    Get Client Ipv4    dev_ap_wc_1
+    Log To Console   dev_ap_wc_1 : ${ip}
     ${loss}  Ping Ipv4  ap  ${ip}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02041: Verify Internet connectivity - WIFI Client1 - ping google.co.in 
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
-    ${loss}  Ping Ipv4  ap_wlan_client_1  ${url}  ${count}
+    ${loss}  Ping Ipv4   dev_ap_wc_1  ${url}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02042: Verify Internet connectivity - WIFI Client2 - ping google.co.in 
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${loss}  Ping Ipv4  ap_wlan_client_2    ${url}    ${count}
+    ${loss}  Ping Ipv4   dev_ap_wc_2    ${url}    ${count}
     Should Be True    ${loss} < ${5}
 
 TC02043: Change Encryption (WPA3-Personal) method of 5GHz Interface and verify with WiFi Client1
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -809,7 +802,7 @@ TC02043: Change Encryption (WPA3-Personal) method of 5GHz Interface and verify w
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
 
 TC02044: Change Encryption (WPA3-Personal) method of 5GHz Interface and verify with WiFi Client2
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
@@ -824,55 +817,55 @@ TC02044: Change Encryption (WPA3-Personal) method of 5GHz Interface and verify w
 
 
 TC02045: Verify WLAN connectivity - Ping from DUT to WIFI Client1.
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
-    ${ip}    Get Client Ipv4   ap_wlan_client_1
-    Log To Console  ap_wlan_client_1 : ${ip}
+    ${ip}    Get Client Ipv4    dev_ap_wc_1
+    Log To Console   dev_ap_wc_1 : ${ip}
     ${loss}  Ping Ipv4  ap  ${ip}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02046: Verify WLAN connectivity - Ping from DUT to WIFI Clients(client2).
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${ip}    Get Client Ipv4   ap_wlan_client_2
-    Log To Console  ap_wlan_client_2 : ${ip}
+    ${ip}    Get Client Ipv4    dev_ap_wc_2
+    Log To Console   dev_ap_wc_2 : ${ip}
     ${loss}  Ping Ipv4  ap  ${ip}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02047: Verify Internet connectivity - WIFI Client1 - ping google.co.in 
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_1
     Initial Check Ap And Its 5G Radio And Wlan Client 1
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_1}    ${ssid_1}    ${password_1}
-    ${loss}  Ping Ipv4  ap_wlan_client_1  ${url}  ${count}
+    ${loss}  Ping Ipv4   dev_ap_wc_1  ${url}  ${count}
     Should Be True  ${loss} < ${5}
 
 TC02048: Verify Internet connectivity - WIFI Clients(client2) - ping google.co.in 
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    DEV_AP_WC_2
     Initial Check Ap And Its 5G Radio And Wlan Client 2
     ${ssid_1}    Get 5G Ssid 1
     ${password_1}    Get Password 1
     ${encryption}    Get Encryption WPA2-Personal
     Configure And Check The Encryption    ${encryption}
     Check And Connect A Client To A Secured Ssid    ${wlan_client_2}    ${ssid_1}    ${password_1}
-    ${loss}  Ping Ipv4  ap_wlan_client_2    ${url}    ${count}
+    ${loss}  Ping Ipv4   dev_ap_wc_2    ${url}    ${count}
     Should Be True    ${loss} < ${5}
 
 TC02049:Open_Source_Regression_11ACVHT80_WPA3_5G
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    AD
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
     Initial Check Ap And Its 5G Radio
     ${ssid_1}    Get 5G Ssid 1
     ${standard}    Get Operating Standard ac
@@ -889,7 +882,7 @@ TC02049:Open_Source_Regression_11ACVHT80_WPA3_5G
     Wait Until Keyword Succeeds   20    3    Check Ssid    ${dut}    ${5g_ssid_index}    ${ssid_1}
 
 TC02050: Open_Source_Regression_11AXAHE20_WPA3-SAE_5G
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    AD
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
     Initial Check Ap And Its 5G Radio
     ${encryption}    Get Encryption WPA2
     ${ssid_1}    Get 5G Ssid 1
@@ -910,7 +903,7 @@ TC02050: Open_Source_Regression_11AXAHE20_WPA3-SAE_5G
     Wait Until Keyword Succeeds   30    3    Check Ssid    ${dut}    ${5g_ssid_index}    ${ssid_1}
 
 TC02051: Open_Source_Regression_11AXAHE160_WPA3_5G
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    AD
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
     Initial Check Ap And Its 5G Radio
     ${ssid_1}    Get 5G Ssid 1
     ${bandwidth}    Get Bandwidth 160MHz
@@ -931,7 +924,7 @@ TC02051: Open_Source_Regression_11AXAHE160_WPA3_5G
     Wait Until Keyword Succeeds   30    3    Check Ssid    ${dut}    ${5g_ssid_index}    ${ssid_1}
 
 TC02052: Set country code by using iw reg set
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    REG_DOMAIN
     Initial Check Ap And Its 5G Radio
     ${domain}    Get Region Domain US
     Set Regulatory Domain    ${dut}    ${domain}
@@ -941,7 +934,7 @@ TC02052: Set country code by using iw reg set
     #Get Highest Supported Channel    ${dut}    ${index}    
 
 TC02053: Change Country code & check Channel list
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G   REG_DOMAIN
     Initial Check Ap And Its 5G Radio
     ${domain_de}    Get Region Domain DE  
     Set Regulatory Domain    ${dut}    ${domain_de}
@@ -951,7 +944,7 @@ TC02053: Change Country code & check Channel list
     # Get Highest Supported Channel    ${dut}    ${index}
 
 TC02054: Reset Country code to US and Verify
-    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G
+    [Tags]  SMOKE_SANITY   SMOKE_SANITY_5G    REG_DOMAIN
     Initial Check Ap And Its 5G Radio
     ${domain}    Get Region Domain US
     Set Regulatory Domain    ${dut}    ${domain}

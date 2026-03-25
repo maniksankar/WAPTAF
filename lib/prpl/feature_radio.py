@@ -16,19 +16,68 @@ class FeatureRadio(BaseFeatureRadio,
         zi_logger.log(f"==== db_obj : {self.db_obj}")
         zi_logger.log("Prpl.FeatureRadio __init__ : END")
 
+    def __disable_all_radio(self, connection_obj):
+        command = "ubus-cli Device.WiFi.Radio.*.Enable=0"
+        output, error = connection_obj.execute_command(command,
+                                                  return_stderr=True)
+        if "ERROR" in output:
+            raise RuntimeError(f"Command execution failed : {command}")
+
+    def __enable_all_radio(self, connection_obj):
+        command = "ubus-cli Device.WiFi.Radio.*.Enable=1"
+        output, error = connection_obj.execute_command(command,
+                                                  return_stderr=True)
+        if "ERROR" in output:
+            raise RuntimeError(f"Command execution failed : {command}")
+
+    def __disable_all_ssid(self, connection_obj):
+        command = "ubus-cli Device.WiFi.SSID.*.Enable=0"
+        output, error = connection_obj.execute_command(command,
+                                                  return_stderr=True)
+        if "ERROR" in output:
+            raise RuntimeError(f"Command execution failed : {command}")
+
+    def __enable_all_ssid(self, connection_obj):
+        command = "ubus-cli Device.WiFi.SSID.*.Enable=1"
+        output, error = connection_obj.execute_command(command,
+                                                  return_stderr=True)
+        if "ERROR" in output:
+            raise RuntimeError(f"Command execution failed : {command}")
+
+    def __disable_all_accesspoint(self, connection_obj):
+        command = "ubus-cli Device.WiFi.AccessPoint.*.Enable=0"
+        output, error = connection_obj.execute_command(command,
+                                                  return_stderr=True)
+        if "ERROR" in output:
+            raise RuntimeError(f"Command execution failed : {command}")
+
+    def __enable_all_accesspoint(self, connection_obj):
+        command = "ubus-cli Device.WiFi.AccessPoint.*.Enable=1"
+        output, error = connection_obj.execute_command(command,
+                                                  return_stderr=True)
+        if "ERROR" in output:
+            raise RuntimeError(f"Command execution failed : {command}")
+
     def load_wifi(self,
                   device):
         zi_logger.log(f"lib.plpl.feature_radio.load_wifi({device})")
         connection = self.db_obj.read_from_database(device, 'connection')
         connection_obj = self.get_connection_module_object(connection)
         connection_obj.switch_connection(device)
-        command = "ubus-cli Device.WiFi.Radio.*.Enable=0"
-        _, error = connection_obj.execute_command(command,
-                                                  return_stderr=True)
+        self.__disable_all_accesspoint(connection_obj)
+        self.__disable_all_ssid(connection_obj)
+        self.__disable_all_radio(connection_obj)
         time.sleep(1)
-        command = "ubus-cli Device.WiFi.Radio.*.Enable=1"
-        _, error = connection_obj.execute_command(command,
-                                                  return_stderr=True)
+        self.__enable_all_accesspoint(connection_obj)
+        self.__enable_all_ssid(connection_obj)
+        self.__enable_all_radio(connection_obj)
+        #command = "ubus-cli Device.WiFi.Radio.*.Enable=0"
+        #_, error = connection_obj.execute_command(command,
+        #                                          return_stderr=True)
+        #time.sleep(1)
+        #command = "ubus-cli Device.WiFi.Radio.*.Enable=1"
+        #_, error = connection_obj.execute_command(command,
+        #                                          return_stderr=True)
 
     def set_channel(self,
                     device,
@@ -101,7 +150,8 @@ class FeatureRadio(BaseFeatureRadio,
     def set_bandwidth(self,
                       device: str,
                       index: str,
-                      bandwidth: str):
+                      bandwidth: str,
+                      no_scan: bool = False):
         """
         To set Bandwidth for the specific radio index
         """
@@ -120,6 +170,7 @@ class FeatureRadio(BaseFeatureRadio,
                                                   return_stderr=True)
         if error != '':
             raise RuntimeError(f"Command execution failed : {command}")
+
 
     
     def get_bandwidth(self,
@@ -269,7 +320,6 @@ class FeatureRadio(BaseFeatureRadio,
             raise RuntimeError(f"Command execution failed : {command}")
         return output
 
-    
     def set_txpower(self,
                     device: str,
                     index: str,

@@ -17,7 +17,7 @@ class Interface(DatabaseModule,
         zi_logger.log(f"==== db_obj : {self.db_obj}")
         zi_logger.log("Interface __init__ : END")
 
-    @keyword("Set Interface From Database")
+    @keyword("Set Interface From Database")  
     def set_interface_from_database(self,
                                     device: str,
                                     index: str):

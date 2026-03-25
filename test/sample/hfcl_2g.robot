@@ -10,7 +10,7 @@ ${wlan_client_2}  ap_wlan_client_2
 ${index}    2g_radio_index
 ${ssid}    OpenWrt2G
 ${channel}    6
-${bandwidth}    HT20
+${bandwidth}    HE20
 ${htmode}  20
 ${open_ap}    none
 ${secured_ap}    psk2

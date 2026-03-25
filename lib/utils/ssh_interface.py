@@ -162,11 +162,51 @@ class SshInterface(DatabaseModule):
                                                      port=port,
                                                      username=username,
                                                      password=password,
-                                                     timeout=timeout)
+                                                     timeout=timeout,
+                                                     banner_timeout = 5,
+                                                     auth_timeout=5)
+            transport = SshInterface.__objects[SshInterface.__alias]['client'].get_transport()
+            #trasnport.set_keepalive(5)
+            if transport is None or not transport.is_active():
+                raise Exception("SSH transport is not active")
+            transport.sock.settimeout(5)
+            transport.set_keepalive(3)
+            print("SSH connection passed")
+            self.__db_obj.write_into_database(SshInterface.__alias, 
+                                              "connection_status",
+                                              True)
+            return True
+
         except Exception as err: # pylint: disable=broad-except
             zi_logger.log(f"Could not login into the host: {host}\n\
 username: {username}\npassword:{password}")
+            self.__db_obj.write_into_database(SshInterface.__alias,
+                                              "connection_status",
+                                              False)
+            #return False
             raise RuntimeError(f"ERROR: {err}") from err
+            
+    @keyword("Is Device Alive")
+    def is_device_alive(self,
+                        device: str):
+        zi_logger.log(f"lib.utils.ssh_interface.is_device_alive({device})")
+        if device not in SshInterface.__objects:
+            raise RuntimeError(f"Given alias - {device} is not present")        
+        zi_logger.log(f"utils.ssh_interface.is_device_alive : device - {device}")
+        try:
+            transport = SshInterface.__objects[device]['client'].get_transport()
+            if transport is None or not transport.is_active():
+                return False
+
+            stdin, stdout, stderr = SshInterface.__objects[device]['client'].exec_command("echo alive", timeout=5)
+            stdout.channel.settimeout(5)
+            stdout.channel.recv_exit_status()
+            self.__db_obj.write_into_database(device, "connection_status", True)
+            return True
+        except Exception as err:
+            print(f"is_device_alive ERROR is : {err}")
+            self.__db_obj.write_into_database(device, "connection_status", False)
+            return False
 
     @keyword("Connect With Device")
     def connect_with_device(self,
@@ -195,6 +235,7 @@ username: {username}\npassword:{password}")
         except Exception as err: # pylint: disable=broad-except
             zi_logger.log(f"Could not login into the device : {device}")
             return False
+        
 
     @keyword("Switch Connection")
     def switch_connection(self,
@@ -250,10 +291,13 @@ username: {username}\npassword:{password}")
         | Execute Ssh Command | uci set wireless.0.channel=11  | return_rc = True   |
         """
         zi_logger.log(f"lib.utils.ssh_interface.execute_command({command})")
+        device = SshInterface.__alias
+        if not self.is_device_alive(device):
+            raise RuntimeError(f"Could not execute the command since the device {device} is not alive")
         try:
             out = None
             if blocking_call:
-                _stdin, stdout, stderr = SshInterface.__objects[SshInterface.__alias]['client'].exec_command(command)
+                _stdin, stdout, stderr = SshInterface.__objects[SshInterface.__alias]['client'].exec_command(command, timeout=10)
                 output = stdout.read().decode('utf-8').strip()
                 error = stderr.read().decode('utf-8').strip()
                 return_code = stdout.channel.recv_exit_status()

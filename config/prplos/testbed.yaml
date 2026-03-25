@@ -1,0 +1,80 @@
+ap_lan_client_1:
+    device_present: False
+    platform: 'linux'
+    connection: 'ssh'
+    login_ip: '10.0.0.22'
+    username: 'client2'
+    password: 'user'
+    port: 22
+    data_iface: 'enp3s0'
+
+ap_lan_client_2:
+    device_present: False
+    platform: 'linux'
+    connection: 'ssh'
+    login_ip: '192.168.10.12'
+    username: 'client1'
+    password: 'user'
+    port: 22
+    data_iface: 'enp3s0'
+
+ap_lan_client_3:
+    device_present: False
+    platform: 'ios'
+    connection: 'ssh'
+    login_ip: '192.168.10.11'
+    username: 'root'
+    password: 'user'
+    port: 22
+    data_iface: 'enp3s0'
+
+ap_wlan_client_1:
+    device_present: True
+    platform: 'linux'
+    connection: 'ssh'
+    login_ip: '10.0.20.101'
+    username: 'root'
+    password: 'user'
+    port: 22
+    data_iface: 'wlp2s0'
+
+ap_wlan_client_2:
+    device_present: True
+    platform: 'linux'
+    connection: 'ssh'
+    login_ip: '10.0.20.102'
+    username: 'root'
+    password: 'user'
+    port: 22
+    data_iface: 'wlp2s0'
+
+ap_wlan_client_3:
+    device_present: False
+    platform: 'ios'
+    connection: 'ssh'
+    login_ip: '192.168.10.11'
+    username: 'root'
+    password: 'user'
+    port: 22
+    data_iface: 'wlp2s0'
+
+ap_wlan_client_4:
+    device_present: False
+    platform: 'android'
+    connection: 'adb'
+    device_id: '10000000cd0c07a6'
+    port: 5037
+    data_iface: 'wlan0'
+
+sniffer:
+    device_present: False
+    platform: 'linux'
+    connection: 'ssh'
+    login_ip: '172.16.1.1'
+    username: 'root'
+    password: 'user@123'
+    port: 22
+    interface: 'wlx9418655ed443'
+    pcap_dir: '/tmp/'  # or wherever you want the pcap files saved
+    csv_dir: '/home/user/pitstop/csv'
+    result_dir: '/home/user/pitstop/result'

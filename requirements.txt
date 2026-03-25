@@ -1,0 +1,4 @@
+paramiko==2.9.3
+PyYAML==6.0.1
+robotframework==7.3.2
+scp==0.15.0

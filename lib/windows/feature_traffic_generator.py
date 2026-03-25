@@ -142,7 +142,7 @@ class FeatureTrafficGenerator(GenericTrafficGenerator):
                                              return_stderr=True)
         if error == '':
             raise Exception(f"FileFoundError: {filename} exists.")
-    
+
     def start_iperf_server(self, # pylint: disable=R0913
                            device: str,
                            bind_ip: str,
@@ -158,24 +158,25 @@ class FeatureTrafficGenerator(GenericTrafficGenerator):
         connection = self.db_obj.read_from_database(device, 'connection')
         connection_obj = self.get_connection_module_object(connection)
         connection_obj.switch_connection(device)
-        version = self.get_iperf_version(device)
+        #version = self.get_iperf_version(device)
+        version = None  #This line has to be modified
         log_file = f"{log_name}"
 
-        cmd_parts = [
-            f"start /b iperf{'3' if version == 3 else '2'}.exe -s",
-            f"-B {bind_ip}",
-            f"-p {port}",
-            f"--logfile {log_name}"
-        ]
-        filter_cmd_parts = list(filter(None, cmd_parts))
-        command = " ".join(filter_cmd_parts)
+    #     cmd_parts = [
+    #         f"start /b iperf{'3' if version == 3 else '2'}.exe -s",
+    #         f"-B {bind_ip}",
+    #         f"-p {port}",
+    #         f"--logfile {log_name}"
+    #     ]
+    #     filter_cmd_parts = list(filter(None, cmd_parts))
+    #     command = " ".join(filter_cmd_parts)
 
-        error = connection_obj.execute_command(command,
-                                               return_stdout=False,
-                                               return_stderr=True,
-                                               blocking_call=False)
-        if error:
-            raise Exception(f"Failed to start iPerf server: {error}")
+    #     error = connection_obj.execute_command(command,
+    #                                            return_stdout=False,
+    #                                            return_stderr=True,
+    #                                            blocking_call=False)
+    #     if error:
+    #         raise Exception(f"Failed to start iPerf server: {error}")
 
     def start_iperf_client(self,  # pylint: disable=R0913
                            device: str,

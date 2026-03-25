@@ -126,7 +126,8 @@ class Radio(DatabaseModule,
     def set_bandwidth(self,
                       device: str ,
                       index: str,
-                      bandwidth: str):
+                      bandwidth: str,
+                      no_scan: bool = False):
         """
         Set the channel bandwidth for the given radio index.
 
@@ -144,12 +145,13 @@ class Radio(DatabaseModule,
         | Set Bandwidth | ap | 5g_radio_index | VHT160 |
         | Set Bandwidth | ap | 6g_radio_index | EHT320 |
         """
-        zi_logger.log(f"lib.map.radio.set_bandwidth({device}, {index}, {bandwidth})")
+        zi_logger.log(f"lib.map.radio.set_bandwidth({device}, {index}, {bandwidth},{no_scan})")
         platform = self.db_obj.read_from_database(device, 'platform')
         platform_obj = self.get_platform_module_object(platform)
         platform_obj.set_bandwidth(device,
                                    index,
-                                   bandwidth)
+                                   bandwidth,
+                                   no_scan)
 
     @keyword("Get Bandwidth")
     def get_bandwidth(self,
